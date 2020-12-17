@@ -98,6 +98,12 @@ urlpatterns = [
         views.ReverifyView.as_view(),
         name="verify_student_reverify"
     ),
+
+    url(
+        r'^photo-urls/$',
+        views.PhotoUrlsView.as_view(),
+        name="verification_photo_urls"
+    )
 ]
 
 # Fake response page for incourse reverification ( software secure )

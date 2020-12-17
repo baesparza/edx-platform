@@ -49,6 +49,7 @@ from common.djangoapps.student.models import CourseEnrollment
 from common.djangoapps.track import segment
 from common.djangoapps.util.db import outer_atomic
 from common.djangoapps.util.json_request import JsonResponse
+from common.djangoapps.util.views import require_global_staff
 from xmodule.modulestore.django import modulestore
 
 from .services import IDVerificationService
@@ -1213,3 +1214,20 @@ class ReverifyView(View):
         """
         IDV_workflow = IDVerificationService.get_verify_location()
         return redirect(IDV_workflow)
+
+
+class PhotoUrlsView(APIView):
+    """
+    This can be used to help debug IDV photos
+    """
+
+    @method_decorator(require_global_staff)
+    def get(self, request):
+        receipt_id = request.GET.get('receipt_id')
+        verification = SoftwareSecurePhotoVerification.get_verification_from_receipt(receipt_id)
+        if verification:
+            _, body = verification.create_request()
+            return Response(body)
+
+        log.warning(u"Could not find verification with receipt ID %s.", receipt_id)
+        raise Http404
